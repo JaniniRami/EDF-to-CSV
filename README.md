@@ -4,7 +4,7 @@ Transform your EDF (European Data Format) files into CSV (comma-separated value)
 
 ## Why?
 
-Ever tried reading an EDF file with 19 channels using pyedflib, only to be thwarted by German characters? That's exactly what happened to me! Instead of giving up, I turned it into a fun challenge and created my own EDF reader. Plus, I've always wanted to learn about file formats and their readers, so this was the perfect adventure!
+Ever tried reading an EDF file with 19 channels using pyedflib, only to be thwarted by German characters? That's exactly what happened to me! Instead of giving up, I turned it into a fun challenge and created my own EDF reader.
 
 ## References
 

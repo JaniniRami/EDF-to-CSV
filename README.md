@@ -1,6 +1,6 @@
 # EDF-to-CSV
 
-Transform your EDF (European Data Format) files into CSV (comma-separated value) files with ease!
+Convert your EDF (European Data Format) files into CSV (comma-separated value) files with ease!
 
 ## Why?
 

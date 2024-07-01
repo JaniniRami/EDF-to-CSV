@@ -192,7 +192,11 @@ class EDFHandler:
         return flatten_records
 
     def export_signals_to_csv(self):
-        signal_names = self.get_signals_info()["signals_labels"]
+        label_names = self.get_signals_info()["signals_labels"]
+        tranducer_names = self.get_signals_info()["transducers_labels"]
+        unit_names = self.get_signals_info()["units_labels"]
+
+        signal_names = [f'{label} - {tranducer} ({unit})' for label, tranducer, unit in zip(label_names, tranducer_names, unit_names)]
         signal_names.append("All signals")
 
         title = "Select signals to export to CSV: "

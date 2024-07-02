@@ -204,6 +204,7 @@ class EDFHandler:
             signal_names, title, multiselect=True, min_selection_count=1
         )
         selected_signals = [signal_name for signal_name, _ in selected_signals]
+        selected_signals = [signal_name.split(" - ")[0] for signal_name in selected_signals]
 
         if "All signals" in selected_signals:
             selected_signals = signal_names[:-1]

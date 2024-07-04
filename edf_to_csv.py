@@ -1,3 +1,4 @@
+import sys
 import struct
 import pandas as pd
 
@@ -137,7 +138,7 @@ class EDFHandler:
             reserved_bytes_chunk[i * 32 : i * 32 + 32].decode("latin-1").strip()
             for i in range(self.header_info["num_signals"])
         ]
-
+        
         signals_header_info = {
             "signals_labels": signals_labels,
             "transducers_labels": transducers_labels,
@@ -189,14 +190,34 @@ class EDFHandler:
         flatten_records = [sample for record in records_data for sample in record]
 
         print(f"Read {signal_name} signal.")
-        return flatten_records
+        return flatten_records\
+        
+    def digital_to_physical(self, signal_name, digital_signal):
+        signals_info = self.get_signals_info()
+        signal_index = signals_info["signals_labels"].index(signal_name)
 
-    def export_signals_to_csv(self):
+        digital_min = signals_info["digital_min_values"][signal_index]
+        digital_max = signals_info["digital_max_values"][signal_index]
+        physical_min = signals_info["physical_min_values"][signal_index]
+        physical_max = signals_info["physical_max_values"][signal_index]
+
+        physical_signal = [
+            ((sample - digital_min) / (digital_max - digital_min))
+            * (physical_max - physical_min)
+            + physical_min
+            for sample in digital_signal
+        ]
+
+        print(f"Converted {signal_name} signal to physical values.")
+        return physical_signal
+
+    def export_signals_to_csv(self, digital=False):
         label_names = self.get_signals_info()["signals_labels"]
         tranducer_names = self.get_signals_info()["transducers_labels"]
         unit_names = self.get_signals_info()["units_labels"]
+        sample_rates = self.get_signals_info()["num_samples_per_record"]
 
-        signal_names = [f'{label} - {tranducer} ({unit})' for label, tranducer, unit in zip(label_names, tranducer_names, unit_names)]
+        signal_names = [f'{label} - {tranducer} - ({unit}) - {sample_rate} ' for label, tranducer, unit, sample_rate in zip(label_names, tranducer_names, unit_names, sample_rates)]
         signal_names.append("All signals")
 
         title = "Select signals to export to CSV: "
@@ -211,8 +232,12 @@ class EDFHandler:
 
         signals_data = []
         for signal_name in selected_signals:
-            signal_data = self.read_record_chn(signal_name)
-            signals_data.append(signal_data)
+            digital_signal_data = self.read_record_chn(signal_name)
+            if digital:
+                signals_data.append(digital_signal_data)
+            else:
+                physical_signal_data = self.digital_to_physical(signal_name, digital_signal_data)
+                signals_data.append(physical_signal_data)
 
         df = pd.DataFrame(signals_data).T
         df.columns = selected_signals
@@ -224,6 +249,11 @@ class EDFHandler:
         return
 
 
-edf_file = input("Enter the EDF file path: ")
+edf_file = sys.argv[1]
+digital = sys.argv[2]
+
+if digital.title() == "True":
+    digital = True
+
 edf = EDFHandler(edf_file)
-edf.export_signals_to_csv()
+edf.export_signals_to_csv(digital=digital)
